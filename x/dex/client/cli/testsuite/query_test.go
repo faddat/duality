@@ -5,11 +5,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	dualityapp "github.com/duality-labs/duality/app"
 	"github.com/duality-labs/duality/testutil/network"
 	dexClient "github.com/duality-labs/duality/x/dex/client/cli"
 	"github.com/duality-labs/duality/x/dex/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	cmtjson "github.com/tendermint/tendermint/libs/json"
 )
 
 type QueryTestSuite struct {
@@ -152,8 +154,12 @@ func (s *QueryTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	config := network.DefaultConfig()
-	json, err := config.Codec.MarshalJSON(&genesisState)
-	config.GenesisState["dex"] = json
+	appStateBz, err := config.Codec.MarshalJSON(&genesisState)
+	require.NoError(s.T(), err)
+	consensusBz, err := cmtjson.Marshal(dualityapp.DefaultConsensusParams)
+	require.NoError(s.T(), err)
+	config.GenesisState["dex"] = appStateBz
+	config.GenesisState["consensus_params"] = consensusBz
 	require.NoError(s.T(), err)
 
 	nw := network.New(s.T(), config)
