@@ -20,6 +20,21 @@ services:
     depends_on:
      follower-node:
        condition: service_healthy
+  faucet:
+    image: 137158674376.dkr.ecr.us-west-2.amazonaws.com/testnet-faucet:latest
+    ports:
+      - target: 9000
+        x-aws-protocol: http
+    environment:
+      - RPC_NODE=tcp://genesis-node:26657
+      - DENOMS=tokenA,tokenB,tokenC,tokenD
+      - MNEMONIC=guilt sausage note edit route horror miss key bike fire icon raven fire rug gas dust property attend salad cabin town toy green photo
+    depends_on:
+     follower-node:
+       condition: service_healthy
+
+
+
 
 
 # Along with the core docker-compose.yml this can be used to (re)create the devnet-cluster on AWS.
